@@ -326,29 +326,34 @@ function isImageMeta(meta?: string) {
 }
 
 async function openOffer(o: any) {
-	selectedOffer.value = o
-	const id = String(o.OFFER_ID)
+        selectedOffer.value = o
+        const id = String(o.OFFER_ID)
+        const tgId = tg?.initDataUnsafe?.user?.id
+        if (!tgId) {
+                showToast('Откройте через Telegram')
+                return
+        }
 
-	if (filesCache.value[id]) {
-		attaches.value = filesCache.value[id]
-		return
-	}
+        if (filesCache.value[id]) {
+                attaches.value = filesCache.value[id]
+                return
+        }
 
-	attachesLoading.value = true
-	attaches.value = []
-	try {
-		const res = await fetch(`${apiBase}/offers/${id}/files`)
-		const data = await res.json()
-		const list = Array.isArray(data?.data) ? data.data : []
-		filesCache.value[id] = list
-		attaches.value = list
-	} catch (e) {
-		console.error('[WEBAPP] files error', e)
-		filesCache.value[id] = []
-		attaches.value = []
-	} finally {
-		attachesLoading.value = false
-	}
+        attachesLoading.value = true
+        attaches.value = []
+        try {
+                const res = await fetch(`${apiBase}/offers/${id}/files?tg_id=${tgId}`)
+                const data = await res.json()
+                const list = Array.isArray(data?.data) ? data.data : []
+                filesCache.value[id] = list
+                attaches.value = list
+        } catch (e) {
+                console.error('[WEBAPP] files error', e)
+                filesCache.value[id] = []
+                attaches.value = []
+        } finally {
+                attachesLoading.value = false
+        }
 }
 
 function closeOffer() {
@@ -361,25 +366,25 @@ const sendingFiles = ref(false)
 const sendingOne = ref<Record<string, boolean>>({})
 
 async function sendOneToChat(a: any) {
-	const tg = (window as any).Telegram?.WebApp
-	const chatId = tg?.initDataUnsafe?.user?.id
-	if (!chatId || !selectedOffer.value) {
-		showToast('Откройте через Telegram')
-		return
-	}
-	sendingOne.value = { ...sendingOne.value, [a.GUID]: true }
-	try {
-		const res = await fetch(
-			`${apiBase}/offers/${selectedOffer.value.OFFER_ID}/send-to-chat`,
-			{
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ chat_id: chatId, guid: a.GUID }),
-			}
-		)
-		const data = await res.json().catch(() => ({}))
-		if (res.ok) {
-			showToast('Файл отправлен в чат')
+        const tg = (window as any).Telegram?.WebApp
+        const chatId = tg?.initDataUnsafe?.user?.id
+        if (!chatId || !selectedOffer.value) {
+                showToast('Откройте через Telegram')
+                return
+        }
+        sendingOne.value = { ...sendingOne.value, [a.GUID]: true }
+        try {
+                const res = await fetch(
+                        `${apiBase}/offers/${selectedOffer.value.OFFER_ID}/send-to-chat`,
+                        {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ tg_id: chatId, chat_id: chatId, guid: a.GUID }),
+                        }
+                )
+                const data = await res.json().catch(() => ({}))
+                if (res.ok) {
+                        showToast('Файл отправлен в чат')
 			;(window as any).Telegram?.WebApp?.HapticFeedback?.notificationOccurred?.(
 				'success'
 			)
@@ -394,25 +399,25 @@ async function sendOneToChat(a: any) {
 }
 
 async function sendAllToChat() {
-	const tg = (window as any).Telegram?.WebApp
-	const chatId = tg?.initDataUnsafe?.user?.id
-	if (!chatId || !selectedOffer.value) {
-		showToast('Откройте через Telegram')
-		return
-	}
-	sendingFiles.value = true
-	try {
-		const res = await fetch(
-			`${apiBase}/offers/${selectedOffer.value.OFFER_ID}/send-to-chat`,
-			{
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ chat_id: chatId }),
-			}
-		)
-		const data = await res.json().catch(() => ({}))
-		if (res.ok) {
-			showToast(`Отправлено файлов: ${data?.sent ?? 0}`)
+        const tg = (window as any).Telegram?.WebApp
+        const chatId = tg?.initDataUnsafe?.user?.id
+        if (!chatId || !selectedOffer.value) {
+                showToast('Откройте через Telegram')
+                return
+        }
+        sendingFiles.value = true
+        try {
+                const res = await fetch(
+                        `${apiBase}/offers/${selectedOffer.value.OFFER_ID}/send-to-chat`,
+                        {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ tg_id: chatId, chat_id: chatId }),
+                        }
+                )
+                const data = await res.json().catch(() => ({}))
+                if (res.ok) {
+                        showToast(`Отправлено файлов: ${data?.sent ?? 0}`)
 			;(window as any).Telegram?.WebApp?.HapticFeedback?.notificationOccurred?.(
 				'success'
 			)
