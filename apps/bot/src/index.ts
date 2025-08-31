@@ -70,10 +70,6 @@ async function main() {
 		if (/^\/start(?:@\w+)?(?:\s|$)/i.test(text)) {
 			try {
 				await sendAuthUI(chatId, WEBAPP_URL!)
-				await safeReply(
-					chatId,
-					'После авторизации отправьте номер сделки, например: 108834'
-				)
 			} catch (e) {
 				console.error('START handler error', e)
 			}

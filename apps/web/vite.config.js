@@ -11,7 +11,7 @@ export default defineConfig({
     vueDevTools(),
   ],
   server: {
-    allowedHosts: ['30ba266a3ceb.ngrok-free.app'],
+    allowedHosts: ['bb4f3affa89c.ngrok-free.app'],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
