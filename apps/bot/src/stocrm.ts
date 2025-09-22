@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 
 const sto = () => {
   const base = `https://${process.env.STOCRM_DOMAIN}/api/v1/external/v1`;
@@ -24,9 +24,12 @@ export async function getDealAttaches(dealCode: string) {
   const url = `/files/get_filtered_attaches?SID=${SID}`;
   const payload = { FILTER: { ENTITY: 'OFFER', CODE: dealCode } };
   const { data } = await instance.post(url, payload);
-  // API may return array or object; normalize to array
-  return Array.isArray(data) ? data : [data];
+
+  const list = data?.RESPONSE?.DATA || [];
+  return Array.isArray(list) ? list : [];
 }
+
+
 
 export async function downloadFileByGuid(guid: string) {
   const { instance, SID } = sto();

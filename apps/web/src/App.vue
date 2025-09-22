@@ -12,7 +12,7 @@
 		<!-- ====== БЛОК АВТОРИЗАЦИИ ====== -->
 		<Transition name="fade" mode="out-in">
 			<section v-if="!authorized" key="auth" class="auth-card">
-				<h2>Вход по номеру телефона</h2>
+				<h2>Вход по номеру телефонаа</h2>
 
 				<!-- Шаг 1: ввод телефона -->
 				<div v-if="authStep === 'phone'" class="box">
@@ -695,9 +695,11 @@ code {
 	place-items: center;
 	padding: 16px;
 	z-index: 50;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 .modal-card {
-	width: 100%;
+	width: 95%;
 	max-width: 720px;
 	background: #21272e;
 	border: 1px solid #3a4450;
